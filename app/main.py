@@ -31,7 +31,7 @@ async def handle_chat(myself: WebSocket, partner: WebSocket):
 @app.get("/")
 async def get():
     #這樣瀏覽器每次都會重新抓最新的 web2.html
-    return FileResponse("main_web.html", headers={"Cache-Control": "no-store"})
+    return FileResponse("app/main_web.html", headers={"Cache-Control": "no-store"})
 
 @app.websocket("/ws/{game}")
 async def websocket_endpoint(websocket:WebSocket ,game: str ):

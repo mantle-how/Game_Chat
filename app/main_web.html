@@ -41,7 +41,8 @@
 
     function connect(){
         const game = document.getElementById("game_input").value;
-        ws = new WebSocket("ws://127.0.0.1:8000/ws/" + game);
+        const host = window.location.host;
+        ws = new WebSocket("wss://" + host + "/ws/" + game); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
 
         ws.onmessage = function(event){
             const time = getCurrentTime()

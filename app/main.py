@@ -60,6 +60,9 @@ async def websocket_endpoint(websocket:WebSocket ,game: str ):
 
     #沒人等 進入排隊
     else:
+        if websocket in queue:
+            await websocket.send_text(f"你已在配對中，請不要重新加入~")
+            return 
         queue.append(websocket)
         await websocket.send_text(f"配對中....")
         

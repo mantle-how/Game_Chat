@@ -41,27 +41,28 @@ async def websocket_endpoint(websocket:WebSocket ,game: str ):
     if game not in waiting_users:
         waiting_users[game] = []
 
+
     #嘗試配對
     queue = waiting_users[game]
+    
+     # 防止重複加入等待池（例如連點兩次按鈕）
+    if websocket in queue:
+        await websocket.send_text(f"你已在配對中，請不要重新加入~")
+        return
 
     if queue:
-        # 防止重複加入等待池（例如連點兩次按鈕）
-        if websocket in queue:
-            await websocket.send_text(f"你已在配對中，請不要重新加入~")
-            return
-        else: 
-            partner = queue.pop(0)
-            room_id = str(uuid.uuid4()) #使用 uuid 生成唯一 ID
-            active_rooms[room_id] = [websocket, partner] # 儲存聊天室的兩個人
+        partner = queue.pop(0)
+        room_id = str(uuid.uuid4()) #使用 uuid 生成唯一 ID
+        active_rooms[room_id] = [websocket, partner] # 儲存聊天室的兩個人
 
-            await websocket.send_text(f"✅ 配對成功！房號：{room_id}")
-            await partner.send_text(f"✅ 配對成功！房號：{room_id}")
-            
-            # ✅ 雙人聊天直到任一人離線
-            await asyncio.gather(
-                handle_chat(websocket, partner),
-                handle_chat(partner, websocket)
-            )
+        await websocket.send_text(f"✅ 配對成功！房號：{room_id}")
+        await partner.send_text(f"✅ 配對成功！房號：{room_id}")
+        
+        # ✅ 雙人聊天直到任一人離線
+        await asyncio.gather(
+            handle_chat(websocket, partner),
+            handle_chat(partner, websocket)
+        )
 
     #沒人等 進入排隊
     else:

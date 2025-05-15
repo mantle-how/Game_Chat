@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket 測試</title>
+</head>
+<body>
+    <h1>WebSocket 測試</h1>
+
+    <!-- 聊天內容 -->
+    <textarea id="chat" rows="10" cols="50" readonly></textarea><br>
+
+    <!-- 使用者輸入 -->
+    <input type="text" id="message_input" autocomplete="off" />
+    <button onclick="sendMessage()">送出</button>
+
+    <script>
+        // 建立 WebSocket 連線
+        const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+
+        // 當收到訊息時，將訊息加到 textarea 裡
+        ws.onmessage = function(event) {
+            const chat = document.getElementById("chat");
+            chat.value += '\n' + event.data;
+        };
+
+        // 送出訊息
+        function sendMessage() {
+            const input = document.getElementById("message_input");
+            ws.send(input.value);
+            input.value = '';
+        }
+    </script>
+</body>
+</html>

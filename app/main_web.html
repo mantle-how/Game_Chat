@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>配對聊天室</title>
+        <style>
+        #chat {
+            width: 90vw;         /* 佔螢幕 90% 的寬度 */
+            height: 50vh;        /* 佔螢幕 50% 的高度 */
+            resize: none;        /* 不允許使用者手動拉伸大小 */
+            font-size: 16px;
+            padding: 10px;  /* 與邊框有點間距 比較不會貼著邊框 */
+        }
+
+        #message_input {
+            width: 60vw;
+            font-size: 16px;
+        }
+        #connect_button {
+            margin-left: 10px;  /* 左邊保留 10px 空間 */
+        }
+        #send_button{
+            margin-left: 10px;  /* 左邊保留 10px 空間 */
+        }
+    </style>
+</head>
+<body>
+    <h1>雙人聊天室</h1>
+    <p> 遊戲名稱：
+        <input type="text" id="game_input" value="apex" /><!--可以自行輸入遊戲 預設為apex -->
+        <button id="connect_button" onclick="connect()">加入聊天室</button>
+    </p> 
+    
+    <textarea id="chat"  readonly></textarea><br>
+    <input type="text" id="message_input" />
+    
+    <button id="send_button" onclick="sendMessage()">送出</button>
+    
+<script>
+    let ws;
+
+    function connect(){
+        const game = document.getElementById("game_input").value;
+        ws = new WebSocket("ws://127.0.0.1:8000/ws/" + game);
+
+        ws.onmessage = function(event){
+            const time = getCurrentTime()
+            document.getElementById("chat").value += '\n' +time+" "+ event.data;
+        };
+
+        ws.onclose = function(event){
+            const time = getCurrentTime()
+            document.getElementById("chat").value += time +" "+ '\n連線中斷：' + event.reason;
+        };
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("message_input");
+        ws.send(input.value);
+        input.value = '';
+    }
+    function getCurrentTime(){
+        const now = new Date();
+        return now.toLocaleString('zh-TW',{hour12:false});
+
+    }
+
+    // 修正後的 Enter 事件監聽器
+    document.getElementById("message_input").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+
+
+
+
+        
+    </script>
+</body>
+</html>

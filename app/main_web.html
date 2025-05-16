@@ -39,7 +39,7 @@
 <script>
     let ws;
 
-    const client_id = Math.random.toString(36).substring(2);// 隨機產生用戶 ID
+    const client_id = Math.random().toString(36).substring(2);// 隨機產生用戶 ID
 
     function connect(){
         const game = document.getElementById("game_input").value;

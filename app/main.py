@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from typing import Dict, List
 import uuid
 import asyncio
-from content_filter import is_illegal_content
+from app.content_filter import is_illegal_content
 
 app = FastAPI()
 

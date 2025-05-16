@@ -1,4 +1,4 @@
-from fastapi import FastAPI ,WebSocket,WebSocketDisconnect
+from fastapi import FastAPI ,WebSocket,WebSocketDisconnect, Query
 from fastapi.responses import FileResponse
 from typing import Dict, List
 import uuid
@@ -6,8 +6,8 @@ import asyncio
 
 app = FastAPI()
 
-#等待配對的使用者: {遊戲名稱(ex:apex,LOL): [WebSocket, ...]}
-waiting_users: Dict[str, List[WebSocket]] = {}
+#等待配對的使用者: {遊戲名稱(ex:apex,LOL): [{"id": client_id, "ws": WebSocket},{"id": client_id, "ws": WebSocket}]}
+waiting_users: Dict[str, List[Dict[str, WebSocket]]] = {}
 
 #活耀中的聊天室房間: {room_id(uuid): [WebSocket,WebSocket]}
 active_rooms: Dict[str, List[WebSocket]] = {}
@@ -34,7 +34,7 @@ async def get():
     return FileResponse("app/main_web.html", headers={"Cache-Control": "no-store"})
 
 @app.websocket("/ws/{game}")
-async def websocket_endpoint(websocket:WebSocket ,game: str ):
+async def websocket_endpoint(websocket:WebSocket ,game: str , id:str = Query(...)  ):
     await websocket.accept() #接受 WebSocket 的握手請求
 
     # 加入遊戲等待佇列 （若遊戲尚未出現）
@@ -46,12 +46,14 @@ async def websocket_endpoint(websocket:WebSocket ,game: str ):
     queue = waiting_users[game]
     
      # 防止重複加入等待池（例如連點兩次按鈕）
-    if websocket in queue:
-        await websocket.send_text(f"你已在配對中，請不要重新加入~")
-        return
+    for user in queue:
+        if user["id"]  == id:
+            await websocket.send_text(f"你已在配對中，請不要重新加入~")
+            return
 
     if queue:
-        partner = queue.pop(0)
+        partner_data = queue.pop(0)
+        partner = partner_data["ws"]
         room_id = str(uuid.uuid4()) #使用 uuid 生成唯一 ID
         active_rooms[room_id] = [websocket, partner] # 儲存聊天室的兩個人
 
@@ -66,10 +68,10 @@ async def websocket_endpoint(websocket:WebSocket ,game: str ):
 
     #沒人等 進入排隊
     else:
-        queue.append(websocket)
+        queue.append({"id":id,"ws" : websocket})
         await websocket.send_text(f"配對中....")
         
-        # 改為等待配對事件，而不是自己 receive
+        # 改為等待配對事件0，而不是自己 receive
         try:
             # 等待配對，停在這裡什麼都不做
             try:
@@ -79,8 +81,10 @@ async def websocket_endpoint(websocket:WebSocket ,game: str ):
 
         #假如使用者不等了選擇關閉， 將使用者移出等待池
         except WebSocketDisconnect:
-            if websocket in queue:
-                queue.remove(websocket)
+            for user in queue:
+                if user["ws"] in queue:
+                    queue.remove(user)
+                    break #因為有for迴圈 所以break掉for迴圈
 
 
 

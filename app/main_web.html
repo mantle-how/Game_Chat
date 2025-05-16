@@ -39,10 +39,12 @@
 <script>
     let ws;
 
+    const client_id = Math.random.toString(36).substring(2);// 隨機產生用戶 ID
+
     function connect(){
         const game = document.getElementById("game_input").value;
         const host = window.location.host;
-        ws = new WebSocket("wss://" + host + "/ws/" + game); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
+        ws = new WebSocket("wss://" + host + "/ws/" + game + "?id=" + client_id); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
 
         ws.onmessage = function(event){
             const time = getCurrentTime()

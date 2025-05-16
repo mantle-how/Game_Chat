@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 from typing import Dict, List
 import uuid
 import asyncio
+from content_filter import is_illegal_content
 
 app = FastAPI()
 
@@ -16,6 +17,9 @@ async def handle_chat(myself: WebSocket, partner: WebSocket,my_name:str):
     try:
         while True:
             data = await myself.receive_text()
+            if await is_illegal_content(data):
+                await myself.send_text(f"系統判定此訊息含有不當內容，未傳送")
+                continue
             await partner.send_text(f"{my_name}說：{data}")
             await myself.send_text(f"你說：{data}")
         

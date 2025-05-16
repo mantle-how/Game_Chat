@@ -28,8 +28,13 @@
     <h1>雙人聊天室</h1>
     <p> 遊戲名稱：
         <input type="text" id="game_input" value="apex" /><!--可以自行輸入遊戲 預設為apex -->
-        <button id="connect_button" onclick="connect()">加入聊天室</button>
+        
     </p> 
+<p>
+    你的暱稱：
+    <input type="text" id="nickname_input" placeholder="輸入暱稱"  />
+    <button id="connect_button" onclick="connect()">加入聊天室</button>
+</p>   
     
     <textarea id="chat"  readonly></textarea><br>
     <input type="text" id="message_input" />
@@ -44,7 +49,8 @@
     function connect(){
         const game = document.getElementById("game_input").value;
         const host = window.location.host;
-        ws = new WebSocket("wss://" + host + "/ws/" + game + "?id=" + client_id); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
+        const nickname = encodeURIComponent(document.getElementById("nickname_input").value.trim());
+        ws = new WebSocket(`wss://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
 
         ws.onmessage = function(event){
             const time = getCurrentTime()

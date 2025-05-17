@@ -41,7 +41,7 @@ async def websocket_endpoint(
     websocket:WebSocket ,
     game: str , 
     id:str = Query(...) ,
-    nickname:str=Query(default="匿名") ):
+    nickname:str=Query(...) ):
     await websocket.accept() #接受 WebSocket 的握手請求
 
     # 加入遊戲等待佇列 （若遊戲尚未出現）

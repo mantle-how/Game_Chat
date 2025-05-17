@@ -6,8 +6,12 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 async def is_illegal_content(text:str) -> bool:
     #加入chatgpt指令 讓他去判斷text是否有違規
     prompt = f"""
-    判斷此段對話是否有包含色情內容，以及開頭是否直接只打性別以及地點加年齡?
-    請只回答YES 或者 NO 不用解釋。 文字如下:「{text}」
+        你是一個用來識別聊天室違規語句的 AI。
+
+        以下是一段使用者最近幾句話，請判斷是否包含性暗示、性邀約、色情、或以年齡+性別開場等不當行為：
+        「{text}」
+
+        只回 YES 或 NO。
     """
 
     try:

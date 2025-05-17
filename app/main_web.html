@@ -32,7 +32,7 @@
     </p> 
 <p>
     你的暱稱：
-    <input type="text" id="nickname_input" placeholder="輸入暱稱"  />
+    <input type="text" id="nickname_input" placeholder="輸入暱稱"  value="匿名" />
     <button id="connect_button" onclick="connect()">加入聊天室</button>
 </p>   
     
@@ -51,7 +51,7 @@
         const host = window.location.host;
         const nickname = encodeURIComponent(document.getElementById("nickname_input").value.trim());
         ws = new WebSocket(`wss://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
-
+        //ws = new WebSocket(`ws://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`);  
         ws.onmessage = function(event){
             const time = getCurrentTime()
             document.getElementById("chat").value += '\n' +time+" "+ event.data;

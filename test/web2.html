@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>雙人聊天室</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f2f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90vw;
+            max-width: 600px;
+            padding: 20px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type=text] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #chat-box {
+            height: 50vh;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #fafafa;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .message {
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-break: break-word;
+        }
+
+        .me {
+            align-self: flex-end;
+            background-color: #cce5ff;
+        }
+
+        .other {
+            align-self: flex-start;
+            background-color: #e2e3e5;
+        }
+
+        .system {
+            align-self: center;
+            font-style: italic;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>雙人聊天室</h1>
+    <div class="chat-container">
+        <div class="input-group">
+            <input type="text" id="game_input" value="apex" placeholder="遊戲名稱">
+            <input type="text" id="nickname_input" value="匿名" placeholder="你的暱稱">
+            <button onclick="connect()">加入</button>
+        </div>
+
+        <div id="chat-box"></div>
+
+        <div class="input-group">
+            <input type="text" id="message_input" placeholder="輸入訊息">
+            <button onclick="sendMessage()">送出</button>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        const client_id = Math.random().toString(36).substring(2);
+
+        function connect() {
+            const game = document.getElementById("game_input").value.trim();
+            const nickname = encodeURIComponent(document.getElementById("nickname_input").value.trim());
+            const host = window.location.host;
+            ws = new WebSocket(`ws://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`);
+
+            addSystemMessage("🔗 已連線聊天室");
+
+            ws.onmessage = function (event) {
+                const time = getCurrentTime();
+                const isMine = event.data.startsWith("你說") || event.data.includes("⚠️");
+                const isSystem = event.data.includes("配對") || event.data.includes("斷開");
+                const who = isSystem ? "system" : isMine ? "me" : "other";
+                addChatMessage(event.data, who, time);
+            };
+
+            ws.onclose = function (event) {
+                addSystemMessage("❌ 聊天室已斷開：" + event.reason);
+            };
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("message_input");
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(input.value);
+                input.value = '';
+            } else {
+                addSystemMessage("⚠️ 尚未連線聊天室");
+            }
+        }
+
+        function addChatMessage(text, className, time) {
+            const box = document.getElementById("chat-box");
+            const msg = document.createElement("div");
+            msg.className = `message ${className}`;
+            msg.innerText = `${time}  ${text}`;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const box = document.getElementById("chat-box");
+            const msg = document.createElement("div");
+            msg.className = "system";
+            msg.innerText = text;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleString('zh-TW', { hour12: false });
+        }
+
+        document.getElementById("message_input").addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

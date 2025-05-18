@@ -43,6 +43,7 @@ async def websocket_endpoint(
     id:str = Query(...) ,
     nickname:str=Query(...) ):
     await websocket.accept() #接受 WebSocket 的握手請求
+    print(f"🟢 {id} ({nickname}) 已加入遊戲：{game}")
 
     # 加入遊戲等待佇列 （若遊戲尚未出現）
     if game not in waiting_users:
@@ -67,6 +68,7 @@ async def websocket_endpoint(
 
         await websocket.send_text(f"✅ 配對成功！對方是:{partner_name},房號：{room_id}")
         await partner.send_text(f"✅ 配對成功！對方是:{nickname},房號：{room_id}")
+        print(f"配對完成，當前 queue：{[u['id'] for u in queue]}")
         
         # ✅ 雙人聊天直到任一人離線
         await asyncio.gather(
@@ -78,6 +80,7 @@ async def websocket_endpoint(
     else:
         queue.append({"id":id,"ws" : websocket,"nickname":nickname})
         await websocket.send_text(f"{nickname}配對中....")
+        print(f"🕒 {id} 加入等待池，當前 queue：{[u['id'] for u in queue]}")
         
         # 改為等待配對事件0，而不是自己 receive
         try:
@@ -92,7 +95,10 @@ async def websocket_endpoint(
             for user in queue:
                 if user["ws"] == websocket:
                     queue.remove(user)
+                    print(f"🔴 {id} 離線（等待中斷線），已從等待池中移除")
                     break #因為有for迴圈 所以break掉for迴圈
+        #finally:
+            
 
 
 

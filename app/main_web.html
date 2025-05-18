@@ -4,42 +4,134 @@
     <meta charset="UTF-8">
     <title>配對聊天室</title>
         <style>
-        #chat {
-            width: 90vw;         /* 佔螢幕 90% 的寬度 */
-            height: 50vh;        /* 佔螢幕 50% 的高度 */
-            resize: none;        /* 不允許使用者手動拉伸大小 */
-            font-size: 16px;
-            padding: 10px;  /* 與邊框有點間距 比較不會貼著邊框 */
+        /*開始設定<body> 就是你「畫面上看到的所有東西」的地方*/
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f2f4f8;
+            margin: 0; /*移除瀏覽器預設的外距。*/
+            padding: 0;/*同上，這次是清除「內距」。 這是為了讓畫面從最邊邊開始。*/
+            display: flex; /*使用「彈性盒子排版」(flexbox)  這樣可以讓子元素很方便地排列、對齊。*/
+            flex-direction: column;/*指定內容要「垂直排列」（上下方向）。*/
+            align-items: center;/*把內容「水平置中」*/
+
+        }
+        /*這一段是針對 <h1> 標籤（主標題）設定的樣式。*/
+        h1{
+            margin-top: 20px; /*不要緊貼瀏覽器最上緣*/
+            color: #333; /*文字顏色為深灰色*/
+
+        }
+        /* 包含整個聊天室區域的卡片 */
+        .chat-container{
+            background-color: white; /* 背景白色 */
+            border-radius: 12px; /*四個邊角都變成圓角 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* 陰影效果 */
+            width: 90vw;/* 寬度為視窗寬度 90% */
+            max-width: 600px; /* 最大寬度限制為 600px */
+            padding: 20px; /* 內容與邊界之間有 20px 的「內距」 */
+            margin-top: 20px; /*讓整個聊天室區塊往下移動 20px，不會緊貼著上面的標題 <h1>。*/
+            display: flex;/*這個 .chat-container 設成 Flex 排版容器。這樣它裡面的元素（像是輸入區、訊息區）可以用彈性方式排列。*/
+            flex-direction: column; /* Flex 的排列方向是「垂直的*/
+            overflow: hidden; /* 確保內容不會超出容器 */
+        }
+        /* 上下方輸入區（input + button）的橫向排列 */
+        .input-group{
+            display: flex; /* 橫向排列 */
+            gap: 10px; /* 元素間距 10px */
+            margin-bottom: 10px; /*讓這個整塊 .input-group 和下方的區塊之間留 10px 的垂直距離。*/
+            flex-wrap: wrap; /* 元素太擠會自動換行 */
+            margin-bottom: 12px; /* 每一區之間空 12px，看起來比較清楚 */
+        }
+        /*輸入標題*/
+        .input-group label {
+            white-space: nowrap; /* 防止換行 */
+        }
+        /* 所有文字輸入框的樣式 */
+        input[type=text]{
+            height: 42px; /* 統一高度 */
+            box-sizing: border-box; /* 確保 padding 不會超出這個高度 */
+            flex: 1; /* 讓 input 撐滿可用空間 */
+            padding: 10px; /*給這個輸入框的內距（文字和邊框之間的空間）*/
+            font-size: 16px; /*設定輸入文字的大小為 16px*/
+            border-radius: 6px; /* 圓角 */
+            border: 1px solid #ccc; /*加上一個 1px 的邊框，顏色是 #ccc（灰色）*/
+
+        }
+        /* 所有按鈕的樣式 */
+        button{
+            padding: 10px 15px; /*上下留 10px 空間（讓按鈕有「高度」）左右留 15px 空間（讓字不會貼邊）*/
+            font-size: 16px; /*按鈕上的文字大小設為 16px*/
+            background-color: #007bff; /* 藍色背景 */
+            color: white; /*按鈕文字為白色*/
+            border: none;/* 無邊框 */
+            border-radius: 6px; /* 圓角 */
+            cursor: pointer; /* 滑鼠變手指 */
+        }
+        #chat-box{
+            height: 50vh; /*高度佔整個瀏覽器視窗的一半*/
+            overflow-y: auto ; /* 如果內容超出區域高度，出現「垂直滾動條」。*/
+            padding: 10px; /*內容內距，讓訊息不會貼邊，文字顯示更舒服。*/
+            border: 1px solid #ccc;/*加上一圈灰色細邊框，讓區塊看起來更有輪廓感。*/
+            border-radius: 6px;/*圓角*/
+            background-color: #fafafa; /* 淺灰背景 */
+            margin-bottom: 10px; /*這個聊天區與下面輸入框區之間留 10px 的空隙。*/
+            display: flex; /*把這個聊天區變成「彈性盒子（flexbox）」容器。*/
+            flex-direction: column; /*排列方向改為垂直，也就是訊息會一條接一條往下排。*/
+            gap: 6px; /*每條訊息泡泡之間，自動留 6px 的空隙。*/
+
+
+        }
+                /* 單一訊息泡泡樣式 */
+        .message {
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-break: break-word; /* 避免字太長不換行 */
         }
 
-        #message_input {
-            width: 60vw;
-            font-size: 16px;
+        .me {
+            align-self: flex-end; /* 右側顯示 */
+            background-color: #cce5ff; /* 淺藍背景 */
         }
-        #connect_button {
-            margin-left: 10px;  /* 左邊保留 10px 空間 */
+
+        .other {
+            align-self: flex-start; /* 左側顯示 */
+            background-color: #e2e3e5; /* 灰色背景 */
         }
-        #send_button{
-            margin-left: 10px;  /* 左邊保留 10px 空間 */
+
+        .system {
+            align-self: center; /* 居中顯示 */
+            font-style: italic;
+            color: #777; /* 灰字 */
         }
+
     </style>
 </head>
 <body>
     <h1>雙人聊天室</h1>
-    <p> 遊戲名稱：
+    <div class="chat-container"> <!--聊天室主體容器-->
+
+        <!-- 使用者輸入遊戲名與暱稱 -->
+        <div class="input-group">
+        <label for="game_input" style="align-self: center;">遊戲名稱：</label>
         <input type="text" id="game_input" value="apex" /><!--可以自行輸入遊戲 預設為apex -->
-        
-    </p> 
-<p>
-    你的暱稱：
-    <input type="text" id="nickname_input" placeholder="輸入暱稱"  value="匿名" />
-    <button id="connect_button" onclick="connect()">加入聊天室</button>
-</p>   
+        </div>
+
+        <div class="input-group">
+        <label for="nickname_input" style="align-self: center;">你的暱稱：</label>
+        <input type="text" id="nickname_input" placeholder="輸入暱稱"  value="匿名" />
+        <button id="connect_button" onclick="connect()">加入</button>
+        </div>
+
+        <!-- 訊息顯示區域 -->
+        <div id="chat-box"></div>
+        <!-- 使用者輸入訊息與送出 -->
+        <div class="input-group">
+                <input type="text" id="message_input" placeholder="輸入訊息"/>
     
-    <textarea id="chat"  readonly></textarea><br>
-    <input type="text" id="message_input" />
-    
-    <button id="send_button" onclick="sendMessage()">送出</button>
+                <button id="send_button" onclick="sendMessage()">送出</button>
+        </div>
+        </div>
     
 <script>
     let ws;
@@ -50,31 +142,89 @@
         const game = document.getElementById("game_input").value;
         const host = window.location.host;
         const nickname = encodeURIComponent(document.getElementById("nickname_input").value.trim());
-        ws = new WebSocket(`wss://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
-        //ws = new WebSocket(`ws://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`);  
-        ws.onmessage = function(event){
-            const time = getCurrentTime()
-            document.getElementById("chat").value += '\n' +time+" "+ event.data;
-        };
+        const time = getCurrentTime();//取得現在時間
+        //檢查 ws 是否已經存在且為開啟狀態
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            addSystemMessage(time, "⚠️ 你已經連線了，不用再加入！");
+            return;
+        }
+        else{
+            // 建立 WebSocket 連線
+            //ws = new WebSocket(`wss://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
+            ws = new WebSocket(`ws://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); 
+            addSystemMessage(time,"🔗 已加入配對中"); 
 
+        }
+
+
+        // 設定接收訊息事件
+        ws.onmessage = function(event){
+            const time = getCurrentTime();//取得現在時間
+            const isMine = event.data.startsWith("你說") || event.data.includes("⚠️") || event.data.includes("系統判定此訊息含有不當內容，未傳送");
+            const isSystem = event.data.includes("配對") || event.data.includes("斷開");
+            const who = isSystem ? "system" :  isMine ? "me"  :  "other"; //三原運算子 if isSystem ->"system" if isMine ->"me" else ->"other"
+            addChatMessage(event.data, who, time);
+            // 🟡 關鍵新增：如果對方離開聊天室，強制關閉自己的連線
+            if (event.data.includes("離開聊天室")) {
+                ws.close(); // 關閉 WebSocket
+                
+    }
+            
+        };
+        
+        //斷線處理
         ws.onclose = function(event){
-            const time = getCurrentTime()
-            document.getElementById("chat").value += time +" "+ '\n連線中斷：' + event.reason;
+            const time = getCurrentTime(); //取得現在時間
+            addSystemMessage(time,"❌ 聊天室已斷開：" + event.reason); //加入時間+系統訊息
+            document.getElementById("connect_button").disabled = false; // 保險開啟按鈕
         };
     }
-
+    // 傳送訊息給後端  
     function sendMessage() {
         const input = document.getElementById("message_input");
-        ws.send(input.value);
-        input.value = '';
+        const text = input.value.trim();
+        const time = getCurrentTime();//取得現在時間
+        //如果wbsocket為連線狀態的話
+        if(ws && ws.readyState ===  WebSocket.OPEN){
+            //加入傳出空白訊息防呆
+            if (text !== "") {
+                ws.send(text);
+                input.value = '';
+            }
+        }
+        else{
+            addSystemMessage(time,"⚠️ 尚未連線聊天室");
+        }
     }
+    //把一則訊息顯示成泡泡加入到聊天區裡面。
+    function addChatMessage(text, class_name,time){
+        const box = document.getElementById("chat-box");
+        const msg = document.createElement("div") ;//一則聊天訊息的容器
+        msg.className = `message ${class_name}`; //幫剛剛創好的 msg 加上 class 樣式
+        msg.innerText = `${time} ${text}`; //時間 + 訊息文字
+        box.appendChild(msg); //把剛剛創好的 msg div（訊息泡泡）加到聊天框 chat-box 裡面去
+        box.scrollTop = box.scrollHeight; //這是讓畫面「自動捲到最下面」，確保你可以看到最新訊息！
+
+
+    }
+    //加入系統訊息
+    function addSystemMessage(time,text){
+        const box = document.getElementById("chat-box"); // 用 JavaScript 抓取畫面上 ID 為 chat-box 的那個區塊
+        const msg = document.createElement("div"); //用 JavaScript 建立一個新的 <div> 元素，用來包住這次的系統訊息
+        msg.className = "message system"; // 把剛剛建立的 msg 加上一個 class 名稱叫 "system" 這會讓這個元素套用 CSS 中 .system 的樣式
+        msg.innerText = `${time} ${text}`; // 把你傳進來的文字塞進這個 msg 元素裡。
+        box.appendChild(msg);
+        box.scrollTop = box.scrollHeight; //這是讓畫面「自動捲到最下面」，確保你可以看到最新訊息！
+    }
+
+    //取得現在時間
     function getCurrentTime(){
         const now = new Date();
         return now.toLocaleString('zh-TW',{hour12:false});
 
     }
 
-    // 修正後的 Enter 事件監聽器
+    // Enter 事件監聽器
     document.getElementById("message_input").addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             sendMessage();

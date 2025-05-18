@@ -150,8 +150,8 @@
         }
         else{
             // 建立 WebSocket 連線
-            //ws = new WebSocket(`wss://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
-            ws = new WebSocket(`ws://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); 
+            ws = new WebSocket(`wss://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); //"wss://<host>/ws/<game>" 對應到fastapi的"/ws/{game}"
+            //ws = new WebSocket(`ws://${host}/ws/${game}?id=${client_id}&nickname=${nickname}`); 
             addSystemMessage(time,"🔗 已加入配對中"); 
 
         }
